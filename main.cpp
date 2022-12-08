@@ -9,8 +9,8 @@ using namespace std;
 const int lenmax = 100;//ポリマーの長さの最大値
 const double pmax = 1;//サイトがopenな確率の最大
 const double pmin = 0.5;//サイトがopenな確率の最小
-const int steps = 100; //>1 pの
-const int shots = 10;
+const int steps = 100; //>1 pの刻み数
+const int shots = 100;//試行回数
 
 int main()
 {
@@ -41,6 +41,7 @@ int main()
 				Field *field;
 				field = new Field(len);
 				field->set_potential(p);
+				field->set_partition_function();
 
 				shots_data[shot] = field->get_growth_rate();
 				delete field;

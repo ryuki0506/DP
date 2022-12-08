@@ -13,7 +13,7 @@ pmax=np.max(ps)
 pmin=np.min(ps)
 steps=len(ps)
 
-def outputGR_vs_len(plistsize):
+def outputGR_vs_len(plistsize,save):
   plistsize=plistsize-1
   fig, ax=plt.subplots()
   for i in range(plistsize):
@@ -25,21 +25,25 @@ def outputGR_vs_len(plistsize):
   ax.set_xlabel('length')
   ax.set_ylabel('$¥alpha_p$')
   ax.axhline(np.log(2),ls='--')
+  ax.set_ylim(0,np.log(2)+0.1)
   ax.legend(loc='upper left')
   
-  plt.savefig(f'GR_vs_length_max={len(lengths)}')
+  if(save == True):
+    plt.savefig(f'GR_vs_length_max={len(lengths)}')
   plt.show()
-  
-def outputGR_vs_p():
+
+def outputGR_vs_p(save):
   fig,ax = plt.subplots()
   ax.plot(ps,conGRs)
   ax.set_title('p vs GR')
   ax.set_xlabel('p')
   ax.set_ylabel('$¥alpha_p$')
+  ax.axhline(np.log(2),ls='--')
   
-  plt.savefig(f'GR_vs_p_max={len(lengths)}')
+  if(save == True):
+    plt.savefig(f'GR_vs_p_max={len(lengths)}')
   plt.show()
   
-  
-outputGR_vs_len(5)
-outputGR_vs_p()
+
+outputGR_vs_len(5,save=False)
+outputGR_vs_p(save=False)

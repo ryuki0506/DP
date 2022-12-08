@@ -12,12 +12,16 @@ public:
 	void set_potential(double p);
 	double *get_potential();
 
-	double get_partition_function();
+	void set_partition_function();
+	double *get_partition_function();
+	double calc_partition_function();
 	double get_growth_rate();
 
 private:
 	int field_size;
 	double *field;
+	double *partition_function;
+	double *num_of_least_energy_pathes;
 };
 
 
