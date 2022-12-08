@@ -18,6 +18,7 @@ public:
 private:
 	int field_size;
 	double *field;
+	double *num_of_least_energy_pathes;
 };
 
 
