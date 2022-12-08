@@ -82,28 +82,42 @@ void Field::set_partition_function()
 			else
 			{
 				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] * max(partition_function[field_size * (i - j - 1) + j], partition_function[field_size * (i - j) + j - 1]);
-				if (partition_function[field_size * (i - j - 1) + j] <= partition_function[field_size * (i - j) + j - 1])
+				if (partition_function[field_size * (i - j - 1) + j] < partition_function[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
 				}
-				else
+				else if (partition_function[field_size * (i - j - 1) + j] > partition_function[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
+				}
+				else
+				{
+					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1] + num_of_least_energy_pathes[field_size * (i - j - 1) + j];
 				}
 			}
 		}
 	}
+
+	for (int i = 0; i < field_size; i++)
+	{
+		for (int j = 0; j < field_size; j++)
+		{
+			partition_function[field_size * i + j] = num_of_least_energy_pathes[field_size * i + j] * partition_function[field_size * i + j];
+		}
+	}
 }
 
-double *Field::get_partition_function(){
+double *Field::get_partition_function()
+{
 	return partition_function;
 }
 
-double Field::calc_partition_function(){
+double Field::calc_partition_function()
+{
 	double sum = 0;
 	for (int j = 0; j < field_size; j++)
 	{
-		sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * get_partition_function()[field_size * (field_size - j - 1) + j];
+		sum += partition_function[field_size * (field_size - j - 1) + j];
 	}
 	return sum;
 }

@@ -44,7 +44,7 @@ int main()
 				field->set_partition_function();
 
 				double *potential = new double[len*len];
-				potential=field->get_potential();
+				potential=field->get_partition_function();
 				for (int i = 0; i < len; i++)
 				{
 					for (int j = 0; j < len; j++)
