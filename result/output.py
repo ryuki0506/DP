@@ -25,6 +25,7 @@ def outputGR_vs_len(plistsize,save):
   ax.set_xlabel('length')
   ax.set_ylabel('$¥alpha_p$')
   ax.axhline(np.log(2),ls='--')
+  ax.set_ylim(0,np.log(2)+0.1)
   ax.legend(loc='upper left')
   
   if(save == True):
@@ -37,11 +38,12 @@ def outputGR_vs_p(save):
   ax.set_title('p vs GR')
   ax.set_xlabel('p')
   ax.set_ylabel('$¥alpha_p$')
+  ax.axhline(np.log(2),ls='--')
   
   if(save == True):
     plt.savefig(f'GR_vs_p_max={len(lengths)}')
   plt.show()
   
 
-outputGR_vs_len(2,save=False)
-#outputGR_vs_p(save=False)
+outputGR_vs_len(5,save=False)
+outputGR_vs_p(save=False)

@@ -125,12 +125,5 @@ double Field::calc_partition_function()
 double Field::get_growth_rate()
 {
 	double Z = calc_partition_function();
-	if (Z != 0)
-	{
-		return log(Z) / field_size;
-	}
-	else
-	{
-		return 0;
-	}
+	return log(Z) / field_size;
 }
