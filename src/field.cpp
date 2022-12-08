@@ -14,7 +14,7 @@ Field::Field(int len) : field_size(len)
 	{
 		for (int j = 0; j < field_size; j++)
 		{
-			partition_function[field_size * (i - j) + j] = 0;
+			partition_function[field_size * i + j] = 0;
 			num_of_least_energy_pathes[field_size * i + j] = 0;
 		}
 	}
@@ -102,7 +102,7 @@ void Field::set_partition_function()
 	{
 		for (int j = 0; j < field_size; j++)
 		{
-			partition_function[field_size * i + j] = num_of_least_energy_pathes[field_size * i + j] * partition_function[field_size * i + j];
+			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
 		}
 	}
 }
