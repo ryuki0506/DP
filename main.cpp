@@ -53,6 +53,8 @@ int main()
 				field->set_potential(p,mode);
 				field->set_partition_function();
 
+				show_field(field->get_partition_function(),len);
+
 				shots_data[shot] = field->get_growth_rate(parcolation);
 				delete field;
 			}

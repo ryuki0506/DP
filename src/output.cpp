@@ -4,15 +4,17 @@
 
 using namespace std;
 
-void output_GR(double *data,int data_row,int data_column){
-	for(int i=0;i<data_row;i++){
-		for(int j=0;j<data_column;j++){
-			if (j<data_column-1)
+void show_field(double *data,int size){
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			if (j<size-1)
 			{
-				cout << data[data_row*i+j]<<", ";
+				cout << data[size*i+j]<<",";
 			}else{
-				cout << data[data_row*i+j]<<endl;
-			}
+				cout << data[size*i+j]<<endl;
+			}			
 		}
 	}
 };
