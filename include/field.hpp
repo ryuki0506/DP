@@ -9,7 +9,7 @@ public:
 	void set_size(int size);
 	int get_size();
 
-	void set_potential(double p);
+	void set_potential(double p,int mode);
 	double *get_potential();
 
 	void set_partition_function();

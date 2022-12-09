@@ -37,18 +37,31 @@ int Field::get_size()
 	return field_size;
 }
 
-void Field::set_potential(double p)
+void Field::set_potential(double p, int mode)
 {
 	random_device seed_gen;
 	default_random_engine engine(seed_gen());
 
-	bernoulli_distribution dist(1 - p);
-
-	for (int i = 0; i < field_size; i++)
+	if (mode == 1)
 	{
-		for (int j = 0; j < field_size; j++)
+		bernoulli_distribution dist(1 - p);
+		for (int i = 0; i < field_size; i++)
 		{
-			field[field_size * i + j] = exp(-dist(engine));
+			for (int j = 0; j < field_size; j++)
+			{
+				field[field_size * i + j] = exp(-dist(engine));
+			}
+		}
+	}
+	else if (mode == 2)
+	{
+		geometric_distribution<int> dist(p);
+		for (int i = 0; i < field_size; i++)
+		{
+			for (int j = 0; j < field_size; j++)
+			{
+				field[field_size * i + j] = exp(-dist(engine));
+			}
 		}
 	}
 }
@@ -114,17 +127,31 @@ double *Field::get_partition_function()
 
 double Field::calc_partition_function(bool parcolation)
 {
+	for (int i = 0; i < field_size; i++)//分配関数は縮退度がかかっているので、取り除く
+	{
+		for (int j = 0; j < field_size; j++)
+		{
+			if (num_of_least_energy_pathes[field_size * i + j]!=0)
+			{
+				partition_function[field_size * i + j] /= num_of_least_energy_pathes[field_size * i + j];				
+			}else{
+				partition_function[field_size * i + j]=0;
+			}
+		}
+	}
+
 	double sum = 0;
 	double max_partition_func;
-	if (parcolation==true)
+	if (parcolation == true)//分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 	{
-		max_partition_func =1;
-
-	}else{
+		max_partition_func = 1;
+	}
+	else
+	{
 		max_partition_func = partition_function[field_size * (field_size - 1)];
 	}
 
-	for (int j = 0; j < field_size; j++)
+	for (int j = 0; j < field_size; j++)//長さfield_sizeの各分配関数の最大値を計算
 	{
 		if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
 		{
@@ -132,11 +159,19 @@ double Field::calc_partition_function(bool parcolation)
 		}
 	}
 
-	for (int j = 0; j < field_size; j++)
+	for (int j = 0; j < field_size; j++)//最大のもののみ計算
 	{
 		if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 		{
 			sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+		}
+	}
+
+	for (int i = 0; i < field_size; i++)//最初に取り除いた縮退度を戻す
+	{
+		for (int j = 0; j < field_size; j++)
+		{
+			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
 		}
 	}
 
@@ -146,10 +181,12 @@ double Field::calc_partition_function(bool parcolation)
 double Field::get_growth_rate(bool parcolation)
 {
 	double Z = calc_partition_function(parcolation);
-	if (Z!=0)
+	if (Z != 0)
 	{
-		return log(Z)/field_size;
-	}else{
+		return log(Z) / field_size;
+	}
+	else
+	{
 		return 0;
 	}
 }

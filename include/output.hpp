@@ -4,6 +4,6 @@
 #include <vector>
 using namespace std;
 
-void output_GR(double *data,int data_row,int data_column);
+void show_field(double *data,int size);
 
 #endif
