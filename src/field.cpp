@@ -97,7 +97,10 @@ void Field::set_partition_function()
 			}
 		}
 	}
+}
 
+double *Field::get_partition_function()
+{
 	for (int i = 0; i < field_size; i++)
 	{
 		for (int j = 0; j < field_size; j++)
@@ -105,25 +108,42 @@ void Field::set_partition_function()
 			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
 		}
 	}
-}
 
-double *Field::get_partition_function()
-{
 	return partition_function;
 }
 
 double Field::calc_partition_function()
 {
 	double sum = 0;
+	double max_partition_func =1;
+	//double max_partition_func = partition_function[field_size * (field_size - 1)];
+
 	for (int j = 0; j < field_size; j++)
 	{
-		sum += partition_function[field_size * (field_size - j - 1) + j];
+		if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
+		{
+			max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+		}
 	}
+
+	for (int j = 0; j < field_size; j++)
+	{
+		if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+		{
+			sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+		}
+	}
+
 	return sum;
 }
 
 double Field::get_growth_rate()
 {
 	double Z = calc_partition_function();
-	return log(Z) / field_size;
+	if (Z!=0)
+	{
+		return log(Z)/field_size;
+	}else{
+		return 0;
+	}
 }
