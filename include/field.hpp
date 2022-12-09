@@ -14,8 +14,8 @@ public:
 
 	void set_partition_function();
 	double *get_partition_function();
-	double calc_partition_function();
-	double get_growth_rate();
+	double calc_partition_function(bool parcolation);
+	double get_growth_rate(bool parcolation);
 
 private:
 	int field_size;

@@ -112,11 +112,17 @@ double *Field::get_partition_function()
 	return partition_function;
 }
 
-double Field::calc_partition_function()
+double Field::calc_partition_function(bool parcolation)
 {
 	double sum = 0;
-	double max_partition_func =1;
-	//double max_partition_func = partition_function[field_size * (field_size - 1)];
+	double max_partition_func;
+	if (parcolation==true)
+	{
+		max_partition_func =1;
+
+	}else{
+		max_partition_func = partition_function[field_size * (field_size - 1)];
+	}
 
 	for (int j = 0; j < field_size; j++)
 	{
@@ -137,9 +143,9 @@ double Field::calc_partition_function()
 	return sum;
 }
 
-double Field::get_growth_rate()
+double Field::get_growth_rate(bool parcolation)
 {
-	double Z = calc_partition_function();
+	double Z = calc_partition_function(parcolation);
 	if (Z!=0)
 	{
 		return log(Z)/field_size;
