@@ -4,17 +4,23 @@
 
 using namespace std;
 
-void show_field(double *data,int size){
-	for (int i = 0; i < size; i++)
+void show_field(double *data, int size, bool Isshow)
+{
+	if (Isshow)
 	{
-		for (int j = 0; j < size; j++)
+		for (int i = 0; i < size; i++)
 		{
-			if (j<size-1)
+			for (int j = 0; j < size; j++)
 			{
-				cout << data[size*i+j]<<",";
-			}else{
-				cout << data[size*i+j]<<endl;
-			}			
+				if (j < size - 1)
+				{
+					cout << data[size * i + j] << ",";
+				}
+				else
+				{
+					cout << data[size * i + j] << endl;
+				}
+			}
 		}
 	}
 };

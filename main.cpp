@@ -12,15 +12,16 @@ const double pmin = 0.5;//サイトがopenな確率の最小
 const int steps = 2; //>1 pの刻み数
 const int shots = 1;//試行回数
 
-const int mode=1;//計算するノイズの種類
+const int noize_mode=2;//計算するノイズの種類
 /*
-mode==1 :Bernulli分布
-mode==2 :geometric分布
-mode==3 :exponential分布
-mode==4 :log-gamma分布
+noize_mode==1 :Bernulli分布
+noize_mode==2 :geometric分布
+noize_mode==3 :exponential分布
+noize_mode==4 :log-gamma分布
 */
 
 const bool parcolation=false;//parcolationとして計算するか？
+const bool show_in_terminal=true;//ターミナルに表示するか？
 
 int main()
 {
@@ -50,10 +51,10 @@ int main()
 			{
 				Field *field;
 				field = new Field(len);
-				field->set_potential(p,mode);
+				field->set_potential(p,noize_mode);
 				field->set_partition_function();
 
-				show_field(field->get_partition_function(),len);
+				show_field(field->get_partition_function(),len,show_in_terminal);
 
 				shots_data[shot] = field->get_growth_rate(parcolation);
 				delete field;

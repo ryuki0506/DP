@@ -4,6 +4,6 @@
 #include <vector>
 using namespace std;
 
-void show_field(double *data,int size);
+void show_field(double *data,int size,bool Isshow);
 
 #endif
