@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/c++  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -dynamiclib -Wl,-headerpad_max_install_names -o libgreetings.dylib -install_name @rpath/libgreetings.dylib CMakeFiles/greetings.dir/field.cpp.o CMakeFiles/greetings.dir/culc.cpp.o CMakeFiles/greetings.dir/output.cpp.o 

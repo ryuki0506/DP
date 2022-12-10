@@ -1,6 +1,0 @@
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/CMakeFiles/main.dir
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/CMakeFiles/edit_cache.dir
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/CMakeFiles/rebuild_cache.dir
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/src/CMakeFiles/greetings.dir
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/src/CMakeFiles/edit_cache.dir
-/Users/itoryuki/Desktop/Tithech/B4/resarch/program/DP/build/src/CMakeFiles/rebuild_cache.dir
