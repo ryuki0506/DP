@@ -63,6 +63,15 @@ void Field::set_potential(double p, int mode)
 				field[field_size * i + j] = exp(-dist(engine));
 			}
 		}
+	}else if (mode == 3){
+		exponential_distribution<double> dist(p);
+		for (int i = 0; i < field_size; i++)
+		{
+			for (int j = 0; j < field_size; j++)
+			{
+				field[field_size * i + j] = exp(-dist(engine));
+			}
+		}
 	}
 }
 
