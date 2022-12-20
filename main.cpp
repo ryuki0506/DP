@@ -12,7 +12,7 @@ const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 100; //>1 pの刻み数
 const int shots = 10;//試行回数
 
-const int noize_mode=3;//計算するノイズの種類
+const int noize_mode=4;//計算するノイズの種類
 /*
 noize_mode==1 :Bernulli分布
 noize_mode==2 :geometric分布

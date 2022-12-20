@@ -72,6 +72,15 @@ void Field::set_potential(double p, int mode)
 				field[field_size * i + j] = exp(-dist(engine));
 			}
 		}
+	}else if (mode == 4){
+		gamma_distribution<double> dist(p,1.0);
+		for (int i = 0; i < field_size; i++)
+		{
+			for (int j = 0; j < field_size; j++)
+			{
+				field[field_size * i + j] = exp(-log(dist(engine)));
+			}
+		}
 	}
 }
 
