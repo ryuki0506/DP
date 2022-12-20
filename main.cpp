@@ -12,7 +12,7 @@ const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 100; //>1 pの刻み数
 const int shots = 10;//試行回数
 
-const int noize_mode=1;//計算するノイズの種類
+const int noise_mode=1;//計算するノイズの種類
 /*
 noize_mode==1 :Bernulli分布
 noize_mode==2 :geometric分布
@@ -32,6 +32,8 @@ int main()
 {
 	double Dp = (pmax - pmin) / (steps - 1);
 	ofstream ofs("../result/result.txt");
+
+	output_settings(noise_mode,calc_mode);
 
 	for (int len = 0; len <= lenmax; len++)
 	{
@@ -56,7 +58,7 @@ int main()
 			{
 				Field *field;
 				field = new Field(len);
-				field->set_potential(p,noize_mode);
+				field->set_potential(p,noise_mode);
 				field->set_partition_function();
 
 				if (calc_mode==1)

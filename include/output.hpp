@@ -5,5 +5,5 @@
 using namespace std;
 
 void show_field(double *data,int size,int max_size,bool Isshow);
-
+void output_settings(int noise_mode,int calc_mode);
 #endif

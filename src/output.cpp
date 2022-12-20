@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
 #include "output.hpp"
 
 using namespace std;
@@ -24,4 +24,10 @@ void show_field(double *data, int size, int max_size,bool Isshow)
 		}
 		cout<<endl;
 	}
+};
+void output_settings(int noise_mode,int calc_mode){
+	ofstream ofs("../result/settings.txt");
+	ofs<<noise_mode<<endl;
+	ofs<<calc_mode<<endl;
+	ofs.close();
 };
