@@ -67,7 +67,6 @@ int main()
 					shots_data[shot] = field->get_growth_rate(parcolation);
 				}else if (calc_mode==2)
 				{
-					//cout<< field->calc_pysical_quantity(calc_mode,parcolation)<<endl;
 					show_field(field->get_num_of_least_energy_pathes(),len,lenmax,show_in_terminal);
 					shots_data[shot] = field->get_entropy(parcolation);
 				}
