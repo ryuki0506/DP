@@ -4,9 +4,9 @@
 
 using namespace std;
 
-void show_field(double *data, int size, bool Isshow)
+void show_field(double *data, int size, int max_size,bool Isshow)
 {
-	if (Isshow)
+	if (Isshow && (size==max_size))
 	{
 		for (int i = 0; i < size; i++)
 		{
@@ -22,5 +22,6 @@ void show_field(double *data, int size, bool Isshow)
 				}
 			}
 		}
+		cout<<endl;
 	}
 };

@@ -143,9 +143,13 @@ double *Field::get_partition_function()
 	return partition_function;
 }
 
-double Field::calc_partition_function(bool parcolation)
+double *Field::get_num_of_least_energy_pathes(){
+	return num_of_least_energy_pathes;
+}
+
+double Field::calc_pysical_quantity(int calc_mode,bool parcolation)
 {
-	for (int i = 0; i < field_size; i++)//分配関数は縮退度がかかっているので、取り除く
+	/* for (int i = 0; i < field_size; i++)//分配関数は縮退度がかかっているので、取り除く
 	{
 		for (int j = 0; j < field_size; j++)
 		{
@@ -156,7 +160,7 @@ double Field::calc_partition_function(bool parcolation)
 				partition_function[field_size * i + j]=0;
 			}
 		}
-	}
+	} */
 
 	double sum = 0;
 	double max_partition_func;
@@ -181,10 +185,15 @@ double Field::calc_partition_function(bool parcolation)
 	{
 		if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 		{
-			sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+			if (calc_mode==1)
+			{
+				sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+			}else if(calc_mode==2){
+				sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+			}
 		}
 	}
-
+/* 
 	for (int i = 0; i < field_size; i++)//最初に取り除いた縮退度を戻す
 	{
 		for (int j = 0; j < field_size; j++)
@@ -192,13 +201,13 @@ double Field::calc_partition_function(bool parcolation)
 			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
 		}
 	}
-
+ */
 	return sum;
 }
 
 double Field::get_growth_rate(bool parcolation)
 {
-	double Z = calc_partition_function(parcolation);
+	double Z = calc_pysical_quantity(1,parcolation);
 	if (Z != 0)
 	{
 		return log(Z) / field_size;
@@ -207,4 +216,9 @@ double Field::get_growth_rate(bool parcolation)
 	{
 		return 0;
 	}
+}
+
+double Field::get_entropy(bool parcolation){
+	double W=calc_pysical_quantity(2,parcolation);
+	return log(W)/field_size;
 }

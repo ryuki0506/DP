@@ -12,12 +12,17 @@ const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 100; //>1 pの刻み数
 const int shots = 10;//試行回数
 
-const int noize_mode=4;//計算するノイズの種類
+const int noize_mode=1;//計算するノイズの種類
 /*
 noize_mode==1 :Bernulli分布
 noize_mode==2 :geometric分布
 noize_mode==3 :exponential分布
 noize_mode==4 :log-gamma分布
+*/
+const int calc_mode=2;
+/*
+calc_mode==1 :growth rate
+calc_mode==2 :entropy
 */
 
 const bool parcolation=false;//parcolationとして計算するか？
@@ -54,9 +59,16 @@ int main()
 				field->set_potential(p,noize_mode);
 				field->set_partition_function();
 
-				show_field(field->get_partition_function(),len,show_in_terminal);
-
-				shots_data[shot] = field->get_growth_rate(parcolation);
+				if (calc_mode==1)
+				{
+					show_field(field->get_partition_function(),len,lenmax,show_in_terminal);
+					shots_data[shot] = field->get_growth_rate(parcolation);
+				}else if (calc_mode==2)
+				{
+					//cout<< field->calc_pysical_quantity(calc_mode,parcolation)<<endl;
+					show_field(field->get_num_of_least_energy_pathes(),len,lenmax,show_in_terminal);
+					shots_data[shot] = field->get_entropy(parcolation);
+				}
 				delete field;
 			}
 			double re = limited_average(shots_data, shots);

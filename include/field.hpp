@@ -11,11 +11,12 @@ public:
 
 	void set_potential(double p,int mode);
 	double *get_potential();
-
 	void set_partition_function();
 	double *get_partition_function();
-	double calc_partition_function(bool parcolation);
+	double *get_num_of_least_energy_pathes();
+	double calc_pysical_quantity(int calc_mode,bool parcolation);
 	double get_growth_rate(bool parcolation);
+	double get_entropy(bool parcolation);
 
 private:
 	int field_size;
