@@ -149,19 +149,6 @@ double *Field::get_num_of_least_energy_pathes(){
 
 double Field::calc_pysical_quantity(int calc_mode,bool parcolation)
 {
-	/* for (int i = 0; i < field_size; i++)//分配関数は縮退度がかかっているので、取り除く
-	{
-		for (int j = 0; j < field_size; j++)
-		{
-			if (num_of_least_energy_pathes[field_size * i + j]!=0)
-			{
-				partition_function[field_size * i + j] /= num_of_least_energy_pathes[field_size * i + j];				
-			}else{
-				partition_function[field_size * i + j]=0;
-			}
-		}
-	} */
-
 	double sum = 0;
 	double max_partition_func;
 	if (parcolation == true)//分配関数の最大値の初期化(parcolationの時はノイズの最小値)
@@ -193,15 +180,6 @@ double Field::calc_pysical_quantity(int calc_mode,bool parcolation)
 			}
 		}
 	}
-/* 
-	for (int i = 0; i < field_size; i++)//最初に取り除いた縮退度を戻す
-	{
-		for (int j = 0; j < field_size; j++)
-		{
-			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
-		}
-	}
- */
 	return sum;
 }
 
