@@ -234,25 +234,11 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 double Field::get_growth_rate(bool parcolation, bool Isfixed)
 {
 	double Z = calc_pysical_quantity(1, parcolation, Isfixed);
-	if (Z != 0)
-	{
-		return log(Z) / field_size;
-	}
-	else
-	{
-		return 0;
-	}
+	return log(Z) / field_size;
 }
 
 double Field::get_entropy(bool parcolation, bool Isfixed)
 {
 	double W = calc_pysical_quantity(2, parcolation, Isfixed);
-	if (W != 0)
-	{
-		return log(W) / field_size;
-	}
-	else
-	{
-		return 0;
-	}
+	return log(W) / field_size;
 }
