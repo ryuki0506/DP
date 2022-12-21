@@ -19,7 +19,7 @@ noize_mode==2 :geometric分布
 noize_mode==3 :exponential分布
 noize_mode==4 :log-gamma分布
 */
-const int calc_mode=1;
+const int calc_mode=2;
 /*
 calc_mode==1 :growth rate
 calc_mode==2 :entropy
@@ -37,6 +37,8 @@ int main()
 	ofs<<noise_mode<<endl;
 	ofs<<calc_mode<<endl;
 	ofs<<Isfixed<<endl;
+	ofs<<parcolation<<endl;
+
 	ofs << 0 << ", ";
 	for (int len = lenmax; len <= lenmax; len++)
 	{
@@ -66,11 +68,11 @@ int main()
 
 				if (calc_mode==1)
 				{
-					//show_field(field->get_partition_function(),len,lenmax,show_in_terminal);
+					show_field(field->get_partition_function(),len,lenmax,show_in_terminal);
 					shots_data[shot] = field->get_growth_rate(parcolation,Isfixed);
 				}else if (calc_mode==2)
 				{
-					//show_field(field->get_num_of_least_energy_pathes(),len,lenmax,show_in_terminal);
+					show_field(field->get_num_of_least_energy_pathes(),len,lenmax,show_in_terminal);
 					shots_data[shot] = field->get_entropy(parcolation,Isfixed);
 				}
 				delete field;

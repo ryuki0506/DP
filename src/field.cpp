@@ -102,7 +102,7 @@ void Field::set_partition_function()
 			if (i == 0 and j == 0)
 			{
 				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j];
-				num_of_least_energy_pathes[field_size * (i - j) + j] = 1;
+				num_of_least_energy_pathes[field_size * (i - j) + j] = 1.0;
 			}
 			else if (j == 0)
 			{
@@ -136,6 +136,7 @@ void Field::set_partition_function()
 
 double *Field::get_partition_function()
 {
+	/* 
 	for (int i = 0; i < field_size; i++)
 	{
 		for (int j = 0; j < field_size; j++)
@@ -143,7 +144,7 @@ double *Field::get_partition_function()
 			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
 		}
 	}
-
+ */
 	return partition_function;
 }
 
@@ -201,7 +202,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 		}
 		else
 		{
-			max_partition_func = partition_function[field_size * (field_size - 1)];
+			max_partition_func = partition_function[field_size * (field_size/2 - 1)+field_size/2];
 		}
 
 		for (int j = field_size/2-1; j <= field_size/2; j++) //長さfield_sizeの各分配関数の最大値を計算
@@ -246,5 +247,12 @@ double Field::get_growth_rate(bool parcolation, bool Isfixed)
 double Field::get_entropy(bool parcolation, bool Isfixed)
 {
 	double W = calc_pysical_quantity(2, parcolation, Isfixed);
-	return log(W) / field_size;
+	if (W != 0)
+	{
+		return log(W) / field_size;
+	}
+	else
+	{
+		return 0;
+	}
 }
