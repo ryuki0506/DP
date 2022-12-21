@@ -152,47 +152,87 @@ double *Field::get_num_of_least_energy_pathes()
 	return num_of_least_energy_pathes;
 }
 
-double Field::calc_pysical_quantity(int calc_mode, bool parcolation)
+double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixed)
 {
-	double sum = 0;
-	double max_partition_func;
-	if (parcolation == true) //分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+	if (!Isfixed)
 	{
-		max_partition_func = 1.0;
+		double sum = 0;
+		double max_partition_func;
+		if (parcolation == true) //分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+		{
+			max_partition_func = 1.0;
+		}
+		else
+		{
+			max_partition_func = partition_function[field_size * (field_size - 1)];
+		}
+
+		for (int j = 0; j < field_size; j++) //長さfield_sizeの各分配関数の最大値を計算
+		{
+			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
+			{
+				max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+			}
+		}
+
+		for (int j = 0; j < field_size; j++) //最大のもののみ計算
+		{
+			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			{
+				if (calc_mode == 1)
+				{
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+				}
+				else if (calc_mode == 2)
+				{
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+				}
+			}
+		}
+		return sum;
 	}
 	else
 	{
-		max_partition_func = partition_function[field_size * (field_size - 1)];
-	}
-
-	for (int j = 0; j < field_size; j++) //長さfield_sizeの各分配関数の最大値を計算
-	{
-		if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
+		double sum = 0;
+		double max_partition_func;
+		if (parcolation == true) //分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
-			max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+			max_partition_func = 1.0;
 		}
-	}
-
-	for (int j = 0; j < field_size; j++) //最大のもののみ計算
-	{
-		if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+		else
 		{
-			if (calc_mode == 1)
+			max_partition_func = partition_function[field_size * (field_size - 1)];
+		}
+
+		for (int j = field_size/2-1; j <= field_size/2; j++) //長さfield_sizeの各分配関数の最大値を計算
+		{
+			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
 			{
-				sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
-			}
-			else if (calc_mode == 2)
-			{
-				sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+				max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
 			}
 		}
+
+		for (int j = field_size/2-1; j <= field_size/2; j++) //最大のもののみ計算
+		{
+			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			{
+				if (calc_mode == 1)
+				{
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+				}
+				else if (calc_mode == 2)
+				{
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+				}
+			}
+		}
+		return sum;
 	}
-	return sum;
 }
 
-double Field::get_growth_rate(bool parcolation)
+double Field::get_growth_rate(bool parcolation, bool Isfixed)
 {
-	double Z = calc_pysical_quantity(1, parcolation);
+	double Z = calc_pysical_quantity(1, parcolation, Isfixed);
 	if (Z != 0)
 	{
 		return log(Z) / field_size;
@@ -203,8 +243,8 @@ double Field::get_growth_rate(bool parcolation)
 	}
 }
 
-double Field::get_entropy(bool parcolation)
+double Field::get_entropy(bool parcolation, bool Isfixed)
 {
-	double W = calc_pysical_quantity(2, parcolation);
+	double W = calc_pysical_quantity(2, parcolation, Isfixed);
 	return log(W) / field_size;
 }

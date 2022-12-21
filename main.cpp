@@ -24,6 +24,7 @@ const int calc_mode=1;
 calc_mode==1 :growth rate
 calc_mode==2 :entropy
 */
+const bool Isfixed=true;
 
 const bool parcolation=true;//parcolationとして計算するか？
 const bool show_in_terminal=false;//ターミナルに表示するか？
@@ -35,6 +36,7 @@ int main()
 
 	ofs<<noise_mode<<endl;
 	ofs<<calc_mode<<endl;
+	ofs<<Isfixed<<endl;
 	ofs << 0 << ", ";
 	for (int len = lenmax; len <= lenmax; len++)
 	{
@@ -65,11 +67,11 @@ int main()
 				if (calc_mode==1)
 				{
 					//show_field(field->get_partition_function(),len,lenmax,show_in_terminal);
-					shots_data[shot] = field->get_growth_rate(parcolation);
+					shots_data[shot] = field->get_growth_rate(parcolation,Isfixed);
 				}else if (calc_mode==2)
 				{
 					//show_field(field->get_num_of_least_energy_pathes(),len,lenmax,show_in_terminal);
-					shots_data[shot] = field->get_entropy(parcolation);
+					shots_data[shot] = field->get_entropy(parcolation,Isfixed);
 				}
 				delete field;
 			}
