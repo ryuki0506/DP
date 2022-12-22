@@ -6,7 +6,7 @@
 #include <fstream>
 using namespace std;
 
-const int lenmax = 200;//ポリマーの長さの最大値
+const int lenmax = 100;//ポリマーの長さの最大値
 const double pmax = 1;//サイトがopenな確率の最大
 const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 100; //>1 pの刻み数
@@ -63,11 +63,11 @@ int main()
 				Field *field;
 				field = new Field(len);
 				field->set_potential(p,noise_mode);
-				field->set_partition_function();
+				field->set_LPT();
 
 				if (calc_mode==1)
 				{
-					show_field(field->get_partition_function(),len,lenmax,show_in_terminal);
+					show_field(field->get_LPT(),len,lenmax,show_in_terminal);
 					shots_data[shot] = field->get_growth_rate(parcolation,Isfixed);
 				}else if (calc_mode==2)
 				{
