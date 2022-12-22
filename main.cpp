@@ -6,27 +6,26 @@
 #include <fstream>
 using namespace std;
 
-const int lenmax = 100;//ポリマーの長さの最大値
+const int lenmax = 200;//ポリマーの長さの最大値
 const double pmax = 1;//サイトがopenな確率の最大
 const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 100; //>1 pの刻み数
 const int shots = 100;//試行回数
 
-const int noise_mode=1;//計算するノイズの種類
+const int noise_mode=3;//計算するノイズの種類
 /*
 noize_mode==1 :Bernulli分布
 noize_mode==2 :geometric分布
 noize_mode==3 :exponential分布
 noize_mode==4 :log-gamma分布
 */
-const int calc_mode=2;
+const int calc_mode=1;
 /*
 calc_mode==1 :growth rate
 calc_mode==2 :entropy
 */
-const bool Isfixed=false;
-
-const bool parcolation=true;//parcolationとして計算するか？
+const bool Isfixed=true;
+const bool parcolation=false;//parcolationとして計算するか？
 const bool show_in_terminal=false;//ターミナルに表示するか？
 
 int main()
