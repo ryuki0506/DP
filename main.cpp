@@ -25,7 +25,7 @@ calc_mode==1 :growth rate
 calc_mode==2 :entropy
 */
 const bool Isfixed=false;
-const bool parcolation=true;//parcolationとして計算するか？
+const bool parcolation=false;//parcolationとして計算するか？
 const bool show_in_terminal=false;//ターミナルに表示するか？
 
 int main()

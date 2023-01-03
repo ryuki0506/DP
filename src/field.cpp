@@ -136,15 +136,6 @@ void Field::set_partition_function()
 
 double *Field::get_partition_function()
 {
-	/* 
-	for (int i = 0; i < field_size; i++)
-	{
-		for (int j = 0; j < field_size; j++)
-		{
-			partition_function[field_size * i + j] *= num_of_least_energy_pathes[field_size * i + j];
-		}
-	}
- */
 	return partition_function;
 }
 
