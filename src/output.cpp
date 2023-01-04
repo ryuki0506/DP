@@ -31,3 +31,29 @@ void output_settings(int noise_mode,int calc_mode){
 	ofs<<calc_mode<<endl;
 	ofs.close();
 };
+
+void output_SofE(double *data,int size,bool Isshow){
+	if (Isshow)
+	{
+		for (size_t E = 0; E < size; E++)
+		{
+			if (E<size-1)
+			{
+				cout<<E<<',';
+			}else{
+				cout<<E<<endl;
+			}
+		}
+		for (size_t E = 0; E < size; E++)
+		{
+			if (E<size-1)
+			{
+				cout<<data[E]<<',';
+			}else{
+				cout<<data[E]<<endl;
+			}
+		}
+		
+	}
+	
+}

@@ -6,11 +6,13 @@
 #include <fstream>
 using namespace std;
 
-const int lenmax = 3;//ポリマーの長さの最大値
+const int lenmax = 2;//ポリマーの長さの最大値
 const double pmax = 1;//サイトがopenな確率の最大
 const double pmin = 0;//サイトがopenな確率の最小
 const int steps = 2; //>1 pの刻み数
 const int shots = 1;//試行回数
+
+const int Emax=10;
 
 const int noise_mode=1;//計算するノイズの種類
 /*
@@ -55,9 +57,15 @@ int main()
 	{
 		double p = pmin + step * Dp;
 		ofs << p << ", ";
+		cout<<"p="<<p<<endl;
 		for (int len = lenmax; len <= lenmax; len++)
 		{
-			double re = limited_average(simulation(len,lenmax,p,shots,noise_mode,calc_mode,show_in_terminal,Isfixed,parcolation), shots);
+			double SofE_all_path[Emax];
+			SofE(SofE_all_path,Emax,len,p,shots,noise_mode,Isfixed);
+			output_SofE(SofE_all_path,Emax,show_in_terminal);
+
+			double *_simulation=simulation(len,lenmax,p,shots,noise_mode,calc_mode,show_in_terminal,Isfixed,parcolation);
+			double re = limited_average(_simulation, shots);
 
 			if (len < lenmax)
 			{

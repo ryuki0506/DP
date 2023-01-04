@@ -4,13 +4,14 @@
 #include "field.hpp"
 using namespace std;
 
-Field::Field(int len) : field_size(len)
+Field::Field(int len,int Energy) : field_size(len),Emax(Energy)
 {
 	field = new double[field_size * field_size];
 	partition_function = new double[field_size * field_size];
 	num_of_least_energy_pathes = new double[field_size * field_size];
+	SofE=new double[Emax];
 
-	for (int i = 0; i < field_size; i++) //分配関数を初期化
+	for (int i = 0; i < field_size; i++) // 分配関数を初期化
 	{
 		for (int j = 0; j < field_size; j++)
 		{
@@ -18,6 +19,11 @@ Field::Field(int len) : field_size(len)
 			num_of_least_energy_pathes[field_size * i + j] = 0;
 		}
 	}
+	for (size_t E = 0; E < Emax; E++)
+	{
+		SofE[E]=0;
+	}
+	
 }
 
 Field::~Field()
@@ -25,6 +31,7 @@ Field::~Field()
 	delete[] field;
 	delete[] partition_function;
 	delete[] num_of_least_energy_pathes;
+	delete[] SofE;
 }
 
 void Field::set_size(int size)
@@ -49,7 +56,7 @@ void Field::set_potential(double p, int mode)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-dist(engine));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
@@ -95,7 +102,7 @@ double *Field::get_potential()
 
 void Field::set_partition_function()
 {
-	for (int i = 0; i < field_size; i++) //分配関数を漸化式に従って計算
+	for (int i = 0; i < field_size; i++) // 分配関数を漸化式に従って計算
 	{
 		for (int j = 0; j <= i; j++)
 		{
@@ -134,6 +141,73 @@ void Field::set_partition_function()
 	}
 }
 
+double *Field::calc_SofE_all_path(int pos, int depth)
+{
+	if (depth == 0)
+	{
+		double pot = field[field_size * (depth - pos) + pos];
+		int E = (int)pot;
+
+		SofE[E] = 1;
+	}
+	else if(depth>0)
+	{	
+		if (pos == 0)
+		{
+			double pot_u = field[field_size * (depth-1 - pos) + pos];
+			int E_u = (int)pot_u;
+
+			for (size_t j = 0; j < Emax; j++)
+			{
+				if (E_u + j < Emax)
+				{
+					SofE[E_u + j] += calc_SofE_all_path(pos, depth-1)[j];
+				}
+			}
+		}
+		else if (pos == depth)
+		{
+			double pot_l = field[field_size * (depth-1 - pos-1) + pos-1];
+			int E_l = (int)pot_l;
+
+			for (size_t j = 0; j < Emax; j++)
+			{
+				if (E_l + j < Emax)
+				{
+					SofE[E_l + j] += calc_SofE_all_path(pos - 1, depth-1)[j];
+				}
+			}
+		}
+		else if(pos>0 && pos<depth)
+		{
+			double pot_u = field[field_size * (depth-1 - pos) + pos];
+			int E_u = (int)pot_u;
+			double pot_l = field[field_size * (depth-1 - pos-1) + pos-1];
+			int E_l = (int)pot_l;
+
+			for (size_t j = 0; j < Emax; j++)
+			{
+				if (E_u + j < Emax)
+				{
+					SofE[E_u + j] += calc_SofE_all_path(pos, depth-1)[j];
+				}else if (E_l + j < Emax)
+				{
+					SofE[E_l + j] += calc_SofE_all_path(pos - 1, depth-1)[j];
+				}
+			}
+		}
+	}
+
+	return SofE;
+}
+
+void Field::clear_SofE(){
+	for (size_t E = 0; E < Emax; E++)
+	{
+		SofE[E]=0;
+	}
+}
+
 double *Field::get_partition_function()
 {
 	return partition_function;
@@ -150,7 +224,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	{
 		double sum = 0;
 		double max_partition_func;
-		if (parcolation == true) //分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
 			max_partition_func = 1.0;
 		}
@@ -159,7 +233,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 			max_partition_func = partition_function[field_size * (field_size - 1)];
 		}
 
-		for (int j = 0; j < field_size; j++) //長さfield_sizeの各分配関数の最大値を計算
+		for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
 		{
 			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
 			{
@@ -167,7 +241,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 			}
 		}
 
-		for (int j = 0; j < field_size; j++) //最大のもののみ計算
+		for (int j = 0; j < field_size; j++) // 最大のもののみ計算
 		{
 			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 			{
@@ -187,16 +261,16 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	{
 		double sum = 0;
 		double max_partition_func;
-		if (parcolation == true) //分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
 			max_partition_func = 1.0;
 		}
 		else
 		{
-			max_partition_func = partition_function[field_size * (field_size/2 - 1)+field_size/2];
+			max_partition_func = partition_function[field_size * (field_size / 2 - 1) + field_size / 2];
 		}
 
-		for (int j = field_size/2-1; j <= field_size/2; j++) //長さfield_sizeの各分配関数の最大値を計算
+		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
 		{
 			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
 			{
@@ -204,7 +278,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 			}
 		}
 
-		for (int j = field_size/2-1; j <= field_size/2; j++) //最大のもののみ計算
+		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 最大のもののみ計算
 		{
 			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 			{
