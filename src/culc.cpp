@@ -80,10 +80,11 @@ void SofE(double *SofE_all_path,int Emax, int len, double p, int shots, int nois
 
 	for (size_t i = 0; i < len; i++)
 	{
+		double *SofE=field->SofE_all_path(Emax,i, len-1);
 		for (size_t E = 0; E < Emax; E++)
-		{
-			SofE_all_path[E]+= field->calc_SofE_all_path(i, len-1)[E];
-			field->clear_SofE();
+		{	
+			//cout<< field->SofE_all_path(Emax,i, len-1)[E]<<endl;
+			SofE_all_path[E]+= SofE[E];
 		}
 	}
 

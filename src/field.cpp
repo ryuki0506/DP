@@ -4,12 +4,11 @@
 #include "field.hpp"
 using namespace std;
 
-Field::Field(int len,int Energy) : field_size(len),Emax(Energy)
+Field::Field(int len,int Energy) : field_size(len)
 {
 	field = new double[field_size * field_size];
 	partition_function = new double[field_size * field_size];
 	num_of_least_energy_pathes = new double[field_size * field_size];
-	SofE=new double[Emax];
 
 	for (int i = 0; i < field_size; i++) // 分配関数を初期化
 	{
@@ -19,10 +18,6 @@ Field::Field(int len,int Energy) : field_size(len),Emax(Energy)
 			num_of_least_energy_pathes[field_size * i + j] = 0;
 		}
 	}
-	for (size_t E = 0; E < Emax; E++)
-	{
-		SofE[E]=0;
-	}
 	
 }
 
@@ -31,7 +26,6 @@ Field::~Field()
 	delete[] field;
 	delete[] partition_function;
 	delete[] num_of_least_energy_pathes;
-	delete[] SofE;
 }
 
 void Field::set_size(int size)
@@ -141,10 +135,17 @@ void Field::set_partition_function()
 	}
 }
 
-double *Field::calc_SofE_all_path(int pos, int depth)
+double *Field::SofE_all_path(int Emax,int pos, int depth)
 {
+	double SofE[Emax];
+	for (size_t i = 0; i < Emax; i++)
+	{
+		SofE[i]=0;
+	}
+	
 	if (depth == 0)
 	{
+		//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 		double pot = field[field_size * (depth - pos) + pos];
 		int E = (int)pot;
 
@@ -154,58 +155,61 @@ double *Field::calc_SofE_all_path(int pos, int depth)
 	{	
 		if (pos == 0)
 		{
+			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 			double pot_u = field[field_size * (depth-1 - pos) + pos];
 			int E_u = (int)pot_u;
+
+			double *_SofE_u=SofE_all_path(Emax,pos, depth-1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
 				if (E_u + j < Emax)
 				{
-					SofE[E_u + j] += calc_SofE_all_path(pos, depth-1)[j];
+					SofE[E_u + j] += _SofE_u[j];
 				}
 			}
 		}
 		else if (pos == depth)
 		{
-			double pot_l = field[field_size * (depth-1 - pos-1) + pos-1];
+			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
+			double pot_l = field[field_size * (depth-1 - (pos-1)) + pos-1];
 			int E_l = (int)pot_l;
+
+			double *_SofE_l=SofE_all_path(Emax,pos-1, depth-1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
 				if (E_l + j < Emax)
 				{
-					SofE[E_l + j] += calc_SofE_all_path(pos - 1, depth-1)[j];
+					SofE[E_l + j] += _SofE_l[j];
 				}
 			}
 		}
 		else if(pos>0 && pos<depth)
 		{
+			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 			double pot_u = field[field_size * (depth-1 - pos) + pos];
 			int E_u = (int)pot_u;
-			double pot_l = field[field_size * (depth-1 - pos-1) + pos-1];
+			double pot_l = field[field_size * (depth-1 - (pos-1)) + pos-1];
 			int E_l = (int)pot_l;
+			
+			double *_SofE_u=SofE_all_path(Emax,pos, depth-1);
+			double *_SofE_l=SofE_all_path(Emax,pos-1, depth-1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
 				if (E_u + j < Emax)
 				{
-					SofE[E_u + j] += calc_SofE_all_path(pos, depth-1)[j];
-				}else if (E_l + j < Emax)
+					SofE[E_u + j] += _SofE_u[j];
+				}
+				if (E_l + j < Emax)
 				{
-					SofE[E_l + j] += calc_SofE_all_path(pos - 1, depth-1)[j];
+					SofE[E_l + j] += _SofE_l[j];
 				}
 			}
 		}
 	}
-
-	return SofE;
-}
-
-void Field::clear_SofE(){
-	for (size_t E = 0; E < Emax; E++)
-	{
-		SofE[E]=0;
-	}
+return SofE;
 }
 
 double *Field::get_partition_function()
