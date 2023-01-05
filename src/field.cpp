@@ -56,7 +56,7 @@ void Field::set_potential(double p, int mode)
 	}
 	else if (mode == 2)
 	{
-		geometric_distribution<int> dist(p);
+		geometric_distribution<int> dist(1-p);
 		for (int i = 0; i < field_size; i++)
 		{
 			for (int j = 0; j < field_size; j++)
