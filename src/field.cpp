@@ -49,7 +49,7 @@ void Field::set_potential(double p, int mode)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-dist(engine));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
@@ -60,7 +60,7 @@ void Field::set_potential(double p, int mode)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-dist(engine));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
@@ -82,7 +82,7 @@ void Field::set_potential(double p, int mode)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-log(dist(engine)));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
