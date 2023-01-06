@@ -4,7 +4,7 @@
 #include "field.hpp"
 using namespace std;
 
-Field::Field(int len,int Energy) : field_size(len)
+Field::Field(int len) : field_size(len)
 {
 	field = new double[field_size * field_size];
 	partition_function = new double[field_size * field_size];
@@ -18,7 +18,6 @@ Field::Field(int len,int Energy) : field_size(len)
 			num_of_least_energy_pathes[field_size * i + j] = 0;
 		}
 	}
-	
 }
 
 Field::~Field()
@@ -56,12 +55,12 @@ void Field::set_potential(double p, int mode)
 	}
 	else if (mode == 2)
 	{
-		geometric_distribution<int> dist(1-p);
+		geometric_distribution<int> dist(p);
 		for (int i = 0; i < field_size; i++)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-dist(engine));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
@@ -72,7 +71,7 @@ void Field::set_potential(double p, int mode)
 		{
 			for (int j = 0; j < field_size; j++)
 			{
-				field[field_size * i + j] = exp(-dist(engine));
+				field[field_size * i + j] = dist(engine);
 			}
 		}
 	}
@@ -107,22 +106,22 @@ void Field::set_partition_function()
 			}
 			else if (j == 0)
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] * partition_function[field_size * (i - j - 1) + j];
+				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + partition_function[field_size * (i - j - 1) + j];
 				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
 			}
 			else if (j == i)
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] * partition_function[field_size * (i - j) + j - 1];
+				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + partition_function[field_size * (i - j) + j - 1];
 				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
 			}
 			else
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] * max(partition_function[field_size * (i - j - 1) + j], partition_function[field_size * (i - j) + j - 1]);
-				if (partition_function[field_size * (i - j - 1) + j] < partition_function[field_size * (i - j) + j - 1])
+				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(partition_function[field_size * (i - j - 1) + j], partition_function[field_size * (i - j) + j - 1]);
+				if (partition_function[field_size * (i - j - 1) + j] > partition_function[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
 				}
-				else if (partition_function[field_size * (i - j - 1) + j] > partition_function[field_size * (i - j) + j - 1])
+				else if (partition_function[field_size * (i - j - 1) + j] < partition_function[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
 				}
@@ -135,31 +134,31 @@ void Field::set_partition_function()
 	}
 }
 
-double *Field::SofE_all_path(int Emax,int pos, int depth)
+double *Field::SofE_all_path(int Emax, int pos, int depth)
 {
 	double SofE[Emax];
 	for (size_t i = 0; i < Emax; i++)
 	{
-		SofE[i]=0;
+		SofE[i] = 0;
 	}
-	
+
 	if (depth == 0)
 	{
-		//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
+		// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 		double pot = field[field_size * (depth - pos) + pos];
 		int E = (int)pot;
 
 		SofE[E] = 1;
 	}
-	else if(depth>0)
-	{	
+	else if (depth > 0)
+	{
 		if (pos == 0)
 		{
-			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
-			double pot_u = field[field_size * (depth-1 - pos) + pos];
+			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
+			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
 
-			double *_SofE_u=SofE_all_path(Emax,pos, depth-1);
+			double *_SofE_u = SofE_all_path(Emax, pos, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -171,11 +170,11 @@ double *Field::SofE_all_path(int Emax,int pos, int depth)
 		}
 		else if (pos == depth)
 		{
-			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
-			double pot_l = field[field_size * (depth-1 - (pos-1)) + pos-1];
+			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
+			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
-			double *_SofE_l=SofE_all_path(Emax,pos-1, depth-1);
+			double *_SofE_l = SofE_all_path(Emax, pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -185,16 +184,16 @@ double *Field::SofE_all_path(int Emax,int pos, int depth)
 				}
 			}
 		}
-		else if(pos>0 && pos<depth)
+		else if (pos > 0 && pos < depth)
 		{
-			//cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
-			double pot_u = field[field_size * (depth-1 - pos) + pos];
+			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
+			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
-			double pot_l = field[field_size * (depth-1 - (pos-1)) + pos-1];
+			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
-			
-			double *_SofE_u=SofE_all_path(Emax,pos, depth-1);
-			double *_SofE_l=SofE_all_path(Emax,pos-1, depth-1);
+
+			double *_SofE_u = SofE_all_path(Emax, pos, depth - 1);
+			double *_SofE_l = SofE_all_path(Emax, pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -209,7 +208,7 @@ double *Field::SofE_all_path(int Emax,int pos, int depth)
 			}
 		}
 	}
-return SofE;
+	return SofE;
 }
 
 double *Field::get_partition_function()
@@ -227,27 +226,26 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	if (!Isfixed)
 	{
 		double sum = 0;
-		double max_partition_func;
+		double min_partition_func;
 		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
-			max_partition_func = 1.0;
+			min_partition_func = 0;
 		}
 		else
 		{
-			max_partition_func = partition_function[field_size * (field_size - 1)];
-		}
-
-		for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
-		{
-			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
+			min_partition_func = partition_function[field_size * (field_size - 1)];
+			for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
 			{
-				max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+				if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
+				{
+					min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+				}
 			}
 		}
 
 		for (int j = 0; j < field_size; j++) // 最大のもののみ計算
 		{
-			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			if (min_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 			{
 				if (calc_mode == 1)
 				{
@@ -264,27 +262,27 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	else
 	{
 		double sum = 0;
-		double max_partition_func;
+		double min_partition_func;
 		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
-			max_partition_func = 1.0;
+			min_partition_func = 0;
 		}
 		else
 		{
-			max_partition_func = partition_function[field_size * (field_size / 2 - 1) + field_size / 2];
+			min_partition_func = partition_function[field_size * (field_size / 2 - 1) + field_size / 2];
 		}
 
 		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
 		{
-			if (max_partition_func < partition_function[field_size * (field_size - j - 1) + j])
+			if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
 			{
-				max_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+				min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
 			}
 		}
 
 		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 最大のもののみ計算
 		{
-			if (max_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			if (min_partition_func == partition_function[field_size * (field_size - j - 1) + j])
 			{
 				if (calc_mode == 1)
 				{
@@ -300,14 +298,14 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	}
 }
 
-double Field::get_growth_rate(bool parcolation, bool Isfixed)
+double Field::get_FPT(bool parcolation, bool Isfixed)
 {
-	double Z = calc_pysical_quantity(1, parcolation, Isfixed);
-	return log(Z) / field_size;
+	double FPT = calc_pysical_quantity(1, parcolation, Isfixed);
+	return exp(FPT);
 }
 
 double Field::get_entropy(bool parcolation, bool Isfixed)
 {
 	double W = calc_pysical_quantity(2, parcolation, Isfixed);
-	return log(W) / field_size;
+	return W;
 }

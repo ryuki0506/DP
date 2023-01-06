@@ -7,7 +7,9 @@ using namespace std;
 double limited_average(double *data, int data_len);
 // limit_average(double data[],int shots);
 
-double *simulation(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation);
+double average(double *data, int data_len);
+
+double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation);
 
 void SofE(double *SofE_all_path,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed);
 

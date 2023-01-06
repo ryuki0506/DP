@@ -4,13 +4,14 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 using namespace std;
 
-const int lenmax = 20;//ポリマーの長さの最大値
+const int lenmax = 500;//ポリマーの長さの最大値
 const double pmax = 1;//サイトがopenな確率の最大
-const double pmin = 0.6;//サイトがopenな確率の最小
-const int steps = 10; //>1 pの刻み数
-const int shots = 1;//試行回数
+const double pmin = 0;//サイトがopenな確率の最小
+const int steps = 100; //>1 pの刻み数
+const int shots = 100;//試行回数
 
 const int Emax=21;
 
@@ -27,7 +28,7 @@ calc_mode==1 :growth rate
 calc_mode==2 :entropy
 */
 const bool Isfixed=false;
-const bool parcolation=false;//parcolationとして計算するか？
+const bool parcolation=true;//parcolationとして計算するか？
 const bool show_in_terminal=false;//ターミナルに表示するか？
 
 int main()
@@ -59,6 +60,7 @@ int main()
 		ofs << p << ", ";
 		for (int len = lenmax; len <= lenmax; len++)
 		{
+/* 			
 			double SofE_all_path[Emax];
 			SofE(SofE_all_path,Emax,len,p,shots,noise_mode,Isfixed);
 			output_SofE(SofE_all_path,Emax,show_in_terminal);
@@ -67,25 +69,25 @@ int main()
 			{
 				if (E<Emax-1)
 				{
-					ofs<<SofE_all_path[E]<<",";
+					ofs<<log(SofE_all_path[E])/len<<",";
 				}else{
-					ofs<<SofE_all_path[E]<<endl;
+					ofs<<log(SofE_all_path[E])/len<<endl;
 				}
 			}
-			
-/* 
-			double *_simulation=simulation(len,lenmax,p,shots,noise_mode,calc_mode,show_in_terminal,Isfixed,parcolation);
-			double re = limited_average(_simulation, shots);
+ */			
+
+			double _Sofp=Sofp(len,lenmax,p,shots,noise_mode,calc_mode,show_in_terminal,Isfixed,parcolation);
+//			double re = limited_average(_simulation, shots);
 
 			if (len < lenmax)
 			{
-				ofs << re << ", ";
+				ofs << log(_Sofp)/len << ", ";
 			}
 			else
 			{
-				ofs << re << endl;
+				ofs << log(_Sofp)/len << endl;
 			}
- */		}
+		}
 	}
 	ofs.close();
 

@@ -41,52 +41,70 @@ double limited_average(double *data, int data_len)
 	}
 };
 
-double *simulation(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation)
+double average(double *data, int data_len)
 {
-	int Emax=0;
-	double shots_data[shots];
+	double sum = 0;
+	for (size_t i = 0; i < data_len; i++)
+	{
+		sum += data[i];
+	}
+	return sum / data_len;
+}
+
+double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation)
+{
+	double data=0;
 	for (int shot = 0; shot < shots; shot++)
 	{
 		Field *field;
-		field = new Field(len,Emax);
+		field = new Field(len);
 		field->set_potential(p, noise_mode);
 		field->set_partition_function();
 
 		if (calc_mode == 1)
 		{
 			show_field(field->get_partition_function(), len, lenmax, show_in_terminal);
-			shots_data[shot] = field->get_growth_rate(parcolation, Isfixed);
+			data += field->get_FPT(parcolation, Isfixed);
 		}
 		else if (calc_mode == 2)
 		{
 			show_field(field->get_num_of_least_energy_pathes(), len, lenmax, show_in_terminal);
-			shots_data[shot] = field->get_entropy(parcolation, Isfixed);
+			data += field->get_entropy(parcolation, Isfixed);
 		}
 		delete field;
 	}
-	return shots_data;
+
+	return data/shots;
 }
 
-void SofE(double *SofE_all_path,int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
+void SofE(double *SofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
 {
 	for (size_t E = 0; E < Emax; E++)
 	{
-		SofE_all_path[E]=0;
+		SofE_all_path[E] = 0;
 	}
-	
-	Field *field;
-	field = new Field(len,Emax);
-	field->set_potential(p, noise_mode);
 
-	for (size_t i = 0; i < len; i++)
+	for (size_t shot = 0; shot < shots; shot++)
 	{
-		double *SofE=field->SofE_all_path(Emax,i, len-1);
-		for (size_t E = 0; E < Emax; E++)
-		{	
-			//cout<< field->SofE_all_path(Emax,i, len-1)[E]<<endl;
-			SofE_all_path[E]+= SofE[E];
+		Field *field;
+		field = new Field(len);
+		field->set_potential(p, noise_mode);
+
+		for (size_t i = 0; i < len; i++)
+		{
+			double *SofE = field->SofE_all_path(Emax, i, len - 1);
+			for (size_t E = 0; E < Emax; E++)
+			{
+				// cout<< field->SofE_all_path(Emax,i, len-1)[E]<<endl;
+				SofE_all_path[E] += SofE[E];
+			}
 		}
+
+		delete field;
 	}
 
-	delete field;
+	for (size_t E = 0; E < Emax; E++)
+	{
+		SofE_all_path[E] /= shots;
+	}
 }

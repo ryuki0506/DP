@@ -3,7 +3,7 @@
 
 class Field{
 public:
-	Field(int len,int Energy);
+	Field(int len);
 	~Field();
 
 	void set_size(int size);
@@ -16,7 +16,7 @@ public:
 	double *get_partition_function();
 	double *get_num_of_least_energy_pathes();
 	double calc_pysical_quantity(int calc_mode,bool parcolation,bool Isfixed);
-	double get_growth_rate(bool parcolation,bool Isfixed);
+	double get_FPT(bool parcolation,bool Isfixed);
 	double get_entropy(bool parcolation,bool Isfixed);
 
 private:
