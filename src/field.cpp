@@ -226,22 +226,7 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	if (!Isfixed)
 	{
 		double sum = 0;
-		double min_partition_func;
-		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
-		{
-			min_partition_func = 0;
-		}
-		else
-		{
-			min_partition_func = partition_function[field_size * (field_size - 1)];
-			for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
-			{
-				if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
-				{
-					min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
-				}
-			}
-		}
+		double min_partition_func=calc_Emin(parcolation);
 
 		for (int j = 0; j < field_size; j++) // 最大のもののみ計算
 		{
@@ -296,6 +281,26 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 		}
 		return sum;
 	}
+}
+
+double Field::calc_Emin(bool parcolation){
+	double min_partition_func;
+		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+		{
+			min_partition_func = 0;
+		}
+		else
+		{
+			min_partition_func = partition_function[field_size * (field_size - 1)];
+			for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
+			{
+				if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
+				{
+					min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+				}
+			}
+		}
+		return min_partition_func;
 }
 
 double Field::get_FPT(bool parcolation, bool Isfixed)

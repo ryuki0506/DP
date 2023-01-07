@@ -13,5 +13,7 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 
 void SofE(double *SofE_all_path,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed);
 
+void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed,bool parcolation);
+
 
 #endif

@@ -108,3 +108,32 @@ void SofE(double *SofE_all_path, int Emax, int len, double p, int shots, int noi
 		SofE_all_path[E] /= shots;
 	}
 }
+
+void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed,bool parcolation){
+	for (size_t E = 0; E < Emax; E++)
+	{
+		SofE_min[E] = 0;
+	}
+
+	for (size_t shot = 0; shot < shots; shot++)
+	{
+		Field *field;
+		field = new Field(len);
+		field->set_potential(p, noise_mode);
+		field->set_partition_function();
+
+		double _Emin=field->calc_Emin(parcolation);
+		int Emin=int(_Emin);
+		if (Emin<Emax)
+		{
+			SofE_min[Emin]+=field->get_entropy(parcolation, Isfixed);
+		}		
+
+		delete field;
+	}
+
+	for (size_t E = 0; E < Emax; E++)
+	{
+		SofE_min[E] /= shots;
+	}
+}
