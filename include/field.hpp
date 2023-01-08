@@ -3,7 +3,7 @@
 
 class Field{
 public:
-	Field(int len);
+	Field(int len,int E);
 	~Field();
 
 	void set_size(int size);
@@ -11,13 +11,18 @@ public:
 
 	void set_potential(double p,int mode);
 	double *get_potential();
-	void time_evolution();
-	double *WofE_all_path(int Emax,int pos,int depth);
-	double *WofE_all_path(int Emax);
+	void time_evolution(double temp);
 	double *get_FPT();
 	double *get_W_Emin();
+
+	void set_WofE();
+	double *get_WofE();
+	void set_Z(double temp);
+	double get_Z();
 	
 	double calc_pysical_quantity(int calc_mode,bool parcolation,bool Isfixed);
+	
+	double *calc_WofE(int pos,int depth);
 	double calc_Emin(bool parcolation,bool Isfixed);
 	double calc_FPT(bool parcolation,bool Isfixed);
 	double calc_W_Emin(bool parcolation,bool Isfixed);
@@ -25,9 +30,15 @@ public:
 
 private:
 	int field_size;
+	int Emax;
 	double *field;
+
 	double *FPT;
 	double *W_Emin;
+	
+	double Z;
+	double *WofE;
+
 };
 
 

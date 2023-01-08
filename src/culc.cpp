@@ -51,15 +51,16 @@ double average(double *data, int data_len)
 	return sum / data_len;
 }
 
-double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation)
+double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation,double temp)
 {
 	double data = 0;
+	int Emax=0;
 	for (int shot = 0; shot < shots; shot++)
 	{
 		Field *field;
-		field = new Field(len);
+		field = new Field(len,Emax);
 		field->set_potential(p, noise_mode);
-		field->time_evolution();
+		field->time_evolution(temp);
 
 		if (calc_mode == 1)
 		{
@@ -77,22 +78,22 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 	return data / shots;
 }
 
-void WofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
+void WofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed,double temp)
 {
 	for (size_t E = 0; E < Emax; E++)
 	{
 		WofE_all_path[E] = 0;
 	}
-
 	for (size_t shot = 0; shot < shots; shot++)
 	{
 		Field *field;
-		field = new Field(len);
+		field = new Field(len,Emax);
 		field->set_potential(p, noise_mode);
+		field->time_evolution(temp);
 
 		for (size_t E = 0; E < Emax; E++)
 		{
-			WofE_all_path[E] += field->WofE_all_path(Emax)[E];
+			WofE_all_path[E] += field->get_WofE()[E];
 		}
 
 		delete field;
@@ -106,6 +107,7 @@ void WofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noi
 
 void WofE_min(double *WofE_min, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed, bool parcolation)
 {
+	double temp=0;
 	for (size_t E = 0; E < Emax; E++)
 	{
 		WofE_min[E] = 0;
@@ -114,9 +116,9 @@ void WofE_min(double *WofE_min, int Emax, int len, double p, int shots, int nois
 	for (size_t shot = 0; shot < shots; shot++)
 	{
 		Field *field;
-		field = new Field(len);
+		field = new Field(len,Emax);
 		field->set_potential(p, noise_mode);
-		field->time_evolution();
+		field->time_evolution(temp);
 
 		double _Emin = field->calc_Emin(parcolation, Isfixed);
 		int Emin = int(_Emin);

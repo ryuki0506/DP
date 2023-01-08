@@ -4,11 +4,13 @@
 #include "field.hpp"
 using namespace std;
 
-Field::Field(int len) : field_size(len)
+Field::Field(int len, int E) : field_size(len), Emax(E)
 {
+	Z = 0;
 	field = new double[field_size * field_size];
 	FPT = new double[field_size * field_size];
 	W_Emin = new double[field_size * field_size];
+	WofE = new double[Emax];
 
 	for (int i = 0; i < field_size; i++) // 分配関数を初期化
 	{
@@ -18,6 +20,11 @@ Field::Field(int len) : field_size(len)
 			W_Emin[field_size * i + j] = 0;
 		}
 	}
+
+	for (size_t E = 0; E < Emax; E++)
+	{
+		WofE[E] = 0;
+	}
 }
 
 Field::~Field()
@@ -25,6 +32,7 @@ Field::~Field()
 	delete[] field;
 	delete[] FPT;
 	delete[] W_Emin;
+	delete[] WofE;
 }
 
 void Field::set_size(int size)
@@ -93,48 +101,56 @@ double *Field::get_potential()
 	return field;
 }
 
-void Field::time_evolution()
+void Field::time_evolution(double temp)
 {
-	for (int i = 0; i < field_size; i++) // 分配関数を漸化式に従って計算
+	if (temp == 0)
 	{
-		for (int j = 0; j <= i; j++)
+		for (int i = 0; i < field_size; i++) // 分配関数を漸化式に従って計算
 		{
-			if (i == 0 and j == 0)
+			for (int j = 0; j <= i; j++)
 			{
-				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j];
-				W_Emin[field_size * (i - j) + j] = 1.0;
-			}
-			else if (j == 0)
-			{
-				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j - 1) + j];
-				W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j - 1) + j];
-			}
-			else if (j == i)
-			{
-				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j) + j - 1];
-				W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
-			}
-			else
-			{
-				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(FPT[field_size * (i - j - 1) + j], FPT[field_size * (i - j) + j - 1]);
-				if (FPT[field_size * (i - j - 1) + j] > FPT[field_size * (i - j) + j - 1])
+				if (i == 0 and j == 0)
 				{
-					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
+					FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j];
+					W_Emin[field_size * (i - j) + j] = 1.0;
 				}
-				else if (FPT[field_size * (i - j - 1) + j] < FPT[field_size * (i - j) + j - 1])
+				else if (j == 0)
 				{
+					FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j - 1) + j];
 					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j - 1) + j];
+				}
+				else if (j == i)
+				{
+					FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j) + j - 1];
+					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
 				}
 				else
 				{
-					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1] + W_Emin[field_size * (i - j - 1) + j];
+					FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(FPT[field_size * (i - j - 1) + j], FPT[field_size * (i - j) + j - 1]);
+					if (FPT[field_size * (i - j - 1) + j] > FPT[field_size * (i - j) + j - 1])
+					{
+						W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
+					}
+					else if (FPT[field_size * (i - j - 1) + j] < FPT[field_size * (i - j) + j - 1])
+					{
+						W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j - 1) + j];
+					}
+					else
+					{
+						W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1] + W_Emin[field_size * (i - j - 1) + j];
+					}
 				}
 			}
 		}
 	}
+	else if (temp > 0)
+	{
+		set_WofE();
+		set_Z(temp);
+	}
 }
 
-double *Field::WofE_all_path(int Emax, int pos, int depth)
+double *Field::calc_WofE(int pos, int depth)
 {
 	double SofE[Emax];
 	for (size_t i = 0; i < Emax; i++)
@@ -156,7 +172,7 @@ double *Field::WofE_all_path(int Emax, int pos, int depth)
 			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
 
-			double *_SofE_u = WofE_all_path(Emax, pos, depth - 1);
+			double *_SofE_u = calc_WofE(pos, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -171,7 +187,7 @@ double *Field::WofE_all_path(int Emax, int pos, int depth)
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
-			double *_SofE_l = WofE_all_path(Emax, pos - 1, depth - 1);
+			double *_SofE_l = calc_WofE(pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -188,8 +204,8 @@ double *Field::WofE_all_path(int Emax, int pos, int depth)
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
-			double *_SofE_u = WofE_all_path(Emax, pos, depth - 1);
-			double *_SofE_l = WofE_all_path(Emax, pos - 1, depth - 1);
+			double *_SofE_u = calc_WofE(pos, depth - 1);
+			double *_SofE_l = calc_WofE(pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -207,24 +223,6 @@ double *Field::WofE_all_path(int Emax, int pos, int depth)
 	return SofE;
 }
 
-double *Field::WofE_all_path(int Emax)
-{
-	double WofE[Emax];
-	for (int E = 0; E < Emax; E++)
-	{
-		WofE[E] = 0;
-	}
-
-	for (size_t i = 0; i < field_size; i++)
-	{
-		for (size_t E = 0; E < Emax; E++)
-		{
-			WofE[E] += WofE_all_path(Emax, i, field_size - 1)[E];
-		}
-	}
-	return WofE;
-}
-
 double *Field::get_FPT()
 {
 	return FPT;
@@ -233,6 +231,35 @@ double *Field::get_FPT()
 double *Field::get_W_Emin()
 {
 	return W_Emin;
+}
+
+void Field::set_WofE()
+{
+	for (size_t i = 0; i < field_size; i++)
+	{
+		for (size_t E = 0; E < Emax; E++)
+		{
+			WofE[E] += calc_WofE(i, field_size - 1)[E];
+		}
+	}
+}
+
+double *Field::get_WofE()
+{
+	return WofE;
+}
+
+void Field::set_Z(double temp)
+{
+	for (size_t E = 0; E < Emax; E++)
+	{
+		Z += WofE[E] * exp(-E / temp);
+	}
+}
+
+double Field::get_Z()
+{
+	return Z;
 }
 
 double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixed)

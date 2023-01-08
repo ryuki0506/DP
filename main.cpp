@@ -14,6 +14,7 @@ const int steps = 100;	//>1 pの刻み数
 const int shots = 100;	// 試行回数
 
 const int Emax = 21;
+const double T=0;
 
 const int noise_mode = 1; // 計算するノイズの種類
 /*
