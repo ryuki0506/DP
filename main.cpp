@@ -90,18 +90,18 @@ int main()
 						}
  */			
 
-			double _SofE_min[Emax];
-			SofE_min(_SofE_min, Emax, len, p, shots, noise_mode, Isfixed,parcolation);
+			double _WofE_min[Emax];
+			WofE_min(_WofE_min, Emax, len, p, shots, noise_mode, Isfixed,parcolation);
 
 			for (size_t E = 0; E < Emax; E++)
 			{
 				if (E < Emax - 1)
 				{
-					ofs << log(_SofE_min[E]) / len << ",";
+					ofs << log(_WofE_min[E]) / len << ",";
 				}
 				else
 				{
-					ofs << log(_SofE_min[E]) / len << endl;
+					ofs << log(_WofE_min[E]) / len << endl;
 				}
 			}
 

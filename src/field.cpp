@@ -8,14 +8,14 @@ Field::Field(int len) : field_size(len)
 {
 	field = new double[field_size * field_size];
 	FPT = new double[field_size * field_size];
-	num_of_least_energy_pathes = new double[field_size * field_size];
+	W_Emin = new double[field_size * field_size];
 
 	for (int i = 0; i < field_size; i++) // 分配関数を初期化
 	{
 		for (int j = 0; j < field_size; j++)
 		{
 			FPT[field_size * i + j] = 0;
-			num_of_least_energy_pathes[field_size * i + j] = 0;
+			W_Emin[field_size * i + j] = 0;
 		}
 	}
 }
@@ -24,7 +24,7 @@ Field::~Field()
 {
 	delete[] field;
 	delete[] FPT;
-	delete[] num_of_least_energy_pathes;
+	delete[] W_Emin;
 }
 
 void Field::set_size(int size)
@@ -102,39 +102,39 @@ void Field::time_evolution()
 			if (i == 0 and j == 0)
 			{
 				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j];
-				num_of_least_energy_pathes[field_size * (i - j) + j] = 1.0;
+				W_Emin[field_size * (i - j) + j] = 1.0;
 			}
 			else if (j == 0)
 			{
 				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j - 1) + j];
-				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
+				W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j - 1) + j];
 			}
 			else if (j == i)
 			{
 				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j) + j - 1];
-				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
+				W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
 			}
 			else
 			{
 				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(FPT[field_size * (i - j - 1) + j], FPT[field_size * (i - j) + j - 1]);
 				if (FPT[field_size * (i - j - 1) + j] > FPT[field_size * (i - j) + j - 1])
 				{
-					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
+					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1];
 				}
 				else if (FPT[field_size * (i - j - 1) + j] < FPT[field_size * (i - j) + j - 1])
 				{
-					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
+					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j - 1) + j];
 				}
 				else
 				{
-					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1] + num_of_least_energy_pathes[field_size * (i - j - 1) + j];
+					W_Emin[field_size * (i - j) + j] = W_Emin[field_size * (i - j) + j - 1] + W_Emin[field_size * (i - j - 1) + j];
 				}
 			}
 		}
 	}
 }
 
-double *Field::SofE_all_path(int Emax, int pos, int depth)
+double *Field::WofE_all_path(int Emax, int pos, int depth)
 {
 	double SofE[Emax];
 	for (size_t i = 0; i < Emax; i++)
@@ -156,7 +156,7 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
 
-			double *_SofE_u = SofE_all_path(Emax, pos, depth - 1);
+			double *_SofE_u = WofE_all_path(Emax, pos, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -171,7 +171,7 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
-			double *_SofE_l = SofE_all_path(Emax, pos - 1, depth - 1);
+			double *_SofE_l = WofE_all_path(Emax, pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -188,8 +188,8 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
-			double *_SofE_u = SofE_all_path(Emax, pos, depth - 1);
-			double *_SofE_l = SofE_all_path(Emax, pos - 1, depth - 1);
+			double *_SofE_u = WofE_all_path(Emax, pos, depth - 1);
+			double *_SofE_l = WofE_all_path(Emax, pos - 1, depth - 1);
 
 			for (size_t j = 0; j < Emax; j++)
 			{
@@ -207,14 +207,32 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 	return SofE;
 }
 
+double *Field::WofE_all_path(int Emax)
+{
+	double WofE[Emax];
+	for (int E = 0; E < Emax; E++)
+	{
+		WofE[E] = 0;
+	}
+
+	for (size_t i = 0; i < field_size; i++)
+	{
+		for (size_t E = 0; E < Emax; E++)
+		{
+			WofE[E] += WofE_all_path(Emax, i, field_size - 1)[E];
+		}
+	}
+	return WofE;
+}
+
 double *Field::get_FPT()
 {
 	return FPT;
 }
 
-double *Field::get_num_of_least_energy_pathes()
+double *Field::get_W_Emin()
 {
-	return num_of_least_energy_pathes;
+	return W_Emin;
 }
 
 double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixed)
@@ -230,11 +248,11 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 			{
 				if (calc_mode == 1)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
+					sum += W_Emin[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
 				}
 				else if (calc_mode == 2)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+					sum += W_Emin[field_size * (field_size - j - 1) + j];
 				}
 			}
 		}
@@ -248,11 +266,11 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 			{
 				if (calc_mode == 1)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
+					sum += W_Emin[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
 				}
 				else if (calc_mode == 2)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j];
+					sum += W_Emin[field_size * (field_size - j - 1) + j];
 				}
 			}
 		}
@@ -295,14 +313,20 @@ double Field::calc_Emin(bool parcolation, bool Isfixed)
 	return min_FPT;
 }
 
-double Field::get_FPT(bool parcolation, bool Isfixed)
+double Field::calc_FPT(bool parcolation, bool Isfixed)
 {
 	double FPT = calc_pysical_quantity(1, parcolation, Isfixed);
 	return FPT;
 }
 
-double Field::get_entropy(bool parcolation, bool Isfixed)
+double Field::calc_W_Emin(bool parcolation, bool Isfixed)
 {
 	double W = calc_pysical_quantity(2, parcolation, Isfixed);
 	return W;
+}
+
+double Field::calc_entropy(bool parcolation, bool Isfixed)
+{
+	double W = calc_pysical_quantity(2, parcolation, Isfixed);
+	return log(W);
 }

@@ -53,7 +53,7 @@ double average(double *data, int data_len)
 
 double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation)
 {
-	double data=0;
+	double data = 0;
 	for (int shot = 0; shot < shots; shot++)
 	{
 		Field *field;
@@ -64,24 +64,24 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 		if (calc_mode == 1)
 		{
 			show_field(field->get_FPT(), len, lenmax, show_in_terminal);
-			data += field->get_FPT(parcolation, Isfixed);
+			data += field->calc_FPT(parcolation, Isfixed);
 		}
 		else if (calc_mode == 2)
 		{
-			show_field(field->get_num_of_least_energy_pathes(), len, lenmax, show_in_terminal);
-			data += field->get_entropy(parcolation, Isfixed);
+			show_field(field->get_W_Emin(), len, lenmax, show_in_terminal);
+			data += field->calc_W_Emin(parcolation, Isfixed);
 		}
 		delete field;
 	}
 
-	return data/shots;
+	return data / shots;
 }
 
-void SofE(double *SofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
+void SofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
 {
 	for (size_t E = 0; E < Emax; E++)
 	{
-		SofE_all_path[E] = 0;
+		WofE_all_path[E] = 0;
 	}
 
 	for (size_t shot = 0; shot < shots; shot++)
@@ -90,14 +90,9 @@ void SofE(double *SofE_all_path, int Emax, int len, double p, int shots, int noi
 		field = new Field(len);
 		field->set_potential(p, noise_mode);
 
-		for (size_t i = 0; i < len; i++)
+		for (size_t E = 0; E < Emax; E++)
 		{
-			double *SofE = field->SofE_all_path(Emax, i, len - 1);
-			for (size_t E = 0; E < Emax; E++)
-			{
-				// cout<< field->SofE_all_path(Emax,i, len-1)[E]<<endl;
-				SofE_all_path[E] += SofE[E];
-			}
+			WofE_all_path[E] += field->WofE_all_path(Emax)[E];
 		}
 
 		delete field;
@@ -105,14 +100,15 @@ void SofE(double *SofE_all_path, int Emax, int len, double p, int shots, int noi
 
 	for (size_t E = 0; E < Emax; E++)
 	{
-		SofE_all_path[E] /= shots;
+		WofE_all_path[E] /= shots;
 	}
 }
 
-void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed,bool parcolation){
+void SofE_min(double *WofE_min, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed, bool parcolation)
+{
 	for (size_t E = 0; E < Emax; E++)
 	{
-		SofE_min[E] = 0;
+		WofE_min[E] = 0;
 	}
 
 	for (size_t shot = 0; shot < shots; shot++)
@@ -122,18 +118,18 @@ void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_
 		field->set_potential(p, noise_mode);
 		field->time_evolution();
 
-		double _Emin=field->calc_Emin(parcolation);
-		int Emin=int(_Emin);
-		if (Emin<Emax)
+		double _Emin = field->calc_Emin(parcolation, Isfixed);
+		int Emin = int(_Emin);
+		if (Emin < Emax)
 		{
-			SofE_min[Emin]+=field->get_entropy(parcolation, Isfixed);
-		}		
+			WofE_min[Emin] += field->calc_W_Emin(parcolation, Isfixed);
+		}
 
 		delete field;
 	}
 
 	for (size_t E = 0; E < Emax; E++)
 	{
-		SofE_min[E] /= shots;
+		WofE_min[E] /= shots;
 	}
 }
