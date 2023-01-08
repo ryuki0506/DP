@@ -104,7 +104,7 @@ void SofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noi
 	}
 }
 
-void SofE_min(double *WofE_min, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed, bool parcolation)
+void WofE_min(double *WofE_min, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed, bool parcolation)
 {
 	for (size_t E = 0; E < Emax; E++)
 	{
