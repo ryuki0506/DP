@@ -11,12 +11,13 @@ public:
 
 	void set_potential(double p,int mode);
 	double *get_potential();
-	void set_FPT();
+	void time_evolution();
 	double *SofE_all_path(int Emax,int pos,int depth);
 	double *get_FPT();
 	double *get_num_of_least_energy_pathes();
+	
 	double calc_pysical_quantity(int calc_mode,bool parcolation,bool Isfixed);
-	double calc_Emin(bool parcolation);
+	double calc_Emin(bool parcolation,bool Isfixed);
 	double get_FPT(bool parcolation,bool Isfixed);
 	double get_entropy(bool parcolation,bool Isfixed);
 

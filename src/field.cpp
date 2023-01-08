@@ -93,7 +93,7 @@ double *Field::get_potential()
 	return field;
 }
 
-void Field::set_FPT()
+void Field::time_evolution()
 {
 	for (int i = 0; i < field_size; i++) // 分配関数を漸化式に従って計算
 	{
@@ -144,7 +144,6 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 
 	if (depth == 0)
 	{
-		// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 		double pot = field[field_size * (depth - pos) + pos];
 		int E = (int)pot;
 
@@ -154,7 +153,6 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 	{
 		if (pos == 0)
 		{
-			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
 
@@ -170,7 +168,6 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 		}
 		else if (pos == depth)
 		{
-			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
 			int E_l = (int)pot_l;
 
@@ -186,7 +183,6 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 		}
 		else if (pos > 0 && pos < depth)
 		{
-			// cout<<"pos="<<pos<<","<<"depth="<<depth<<endl;
 			double pot_u = field[field_size * (depth - 1 - pos) + pos];
 			int E_u = (int)pot_u;
 			double pot_l = field[field_size * (depth - 1 - (pos - 1)) + pos - 1];
@@ -223,12 +219,12 @@ double *Field::get_num_of_least_energy_pathes()
 
 double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixed)
 {
+	double sum = 0;
+	double min_FPT = calc_Emin(parcolation, Isfixed);
+
 	if (!Isfixed)
 	{
-		double sum = 0;
-		double min_FPT=calc_Emin(parcolation);
-
-		for (int j = 0; j < field_size; j++) // 最大のもののみ計算
+		for (int j = 0; j < field_size; j++) // 最小のもののみ計算
 		{
 			if (min_FPT == FPT[field_size * (field_size - j - 1) + j])
 			{
@@ -246,25 +242,6 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	}
 	else
 	{
-		double sum = 0;
-		double min_FPT;
-		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
-		{
-			min_FPT = 0;
-		}
-		else
-		{
-			min_FPT = FPT[field_size * (field_size / 2 - 1) + field_size / 2];
-		}
-
-		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
-		{
-			if (min_FPT > FPT[field_size * (field_size - j - 1) + j])
-			{
-				min_FPT = FPT[field_size * (field_size - j - 1) + j];
-			}
-		}
-
 		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 最大のもののみ計算
 		{
 			if (min_FPT == FPT[field_size * (field_size - j - 1) + j])
@@ -283,13 +260,16 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	}
 }
 
-double Field::calc_Emin(bool parcolation){
+double Field::calc_Emin(bool parcolation, bool Isfixed)
+{
 	double min_FPT;
-		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
-		{
-			min_FPT = 0;
-		}
-		else
+	if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
+	{
+		min_FPT = 0;
+	}
+	else
+	{
+		if (!Isfixed)
 		{
 			min_FPT = FPT[field_size * (field_size - 1)];
 			for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
@@ -300,13 +280,25 @@ double Field::calc_Emin(bool parcolation){
 				}
 			}
 		}
-		return min_FPT;
+		else
+		{
+			min_FPT = FPT[field_size * (field_size / 2 - 1) + field_size / 2];
+			for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
+			{
+				if (min_FPT > FPT[field_size * (field_size - j - 1) + j])
+				{
+					min_FPT = FPT[field_size * (field_size - j - 1) + j];
+				}
+			}
+		}
+	}
+	return min_FPT;
 }
 
 double Field::get_FPT(bool parcolation, bool Isfixed)
 {
 	double FPT = calc_pysical_quantity(1, parcolation, Isfixed);
-	return exp(FPT);
+	return FPT;
 }
 
 double Field::get_entropy(bool parcolation, bool Isfixed)

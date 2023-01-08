@@ -59,7 +59,7 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 		Field *field;
 		field = new Field(len);
 		field->set_potential(p, noise_mode);
-		field->set_FPT();
+		field->time_evolution();
 
 		if (calc_mode == 1)
 		{
@@ -120,7 +120,7 @@ void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_
 		Field *field;
 		field = new Field(len);
 		field->set_potential(p, noise_mode);
-		field->set_FPT();
+		field->time_evolution();
 
 		double _Emin=field->calc_Emin(parcolation);
 		int Emin=int(_Emin);
