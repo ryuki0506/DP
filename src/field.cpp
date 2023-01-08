@@ -7,14 +7,14 @@ using namespace std;
 Field::Field(int len) : field_size(len)
 {
 	field = new double[field_size * field_size];
-	partition_function = new double[field_size * field_size];
+	FPT = new double[field_size * field_size];
 	num_of_least_energy_pathes = new double[field_size * field_size];
 
 	for (int i = 0; i < field_size; i++) // 分配関数を初期化
 	{
 		for (int j = 0; j < field_size; j++)
 		{
-			partition_function[field_size * i + j] = 0;
+			FPT[field_size * i + j] = 0;
 			num_of_least_energy_pathes[field_size * i + j] = 0;
 		}
 	}
@@ -23,7 +23,7 @@ Field::Field(int len) : field_size(len)
 Field::~Field()
 {
 	delete[] field;
-	delete[] partition_function;
+	delete[] FPT;
 	delete[] num_of_least_energy_pathes;
 }
 
@@ -93,7 +93,7 @@ double *Field::get_potential()
 	return field;
 }
 
-void Field::set_partition_function()
+void Field::set_FPT()
 {
 	for (int i = 0; i < field_size; i++) // 分配関数を漸化式に従って計算
 	{
@@ -101,27 +101,27 @@ void Field::set_partition_function()
 		{
 			if (i == 0 and j == 0)
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j];
+				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j];
 				num_of_least_energy_pathes[field_size * (i - j) + j] = 1.0;
 			}
 			else if (j == 0)
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + partition_function[field_size * (i - j - 1) + j];
+				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j - 1) + j];
 				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
 			}
 			else if (j == i)
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + partition_function[field_size * (i - j) + j - 1];
+				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + FPT[field_size * (i - j) + j - 1];
 				num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
 			}
 			else
 			{
-				partition_function[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(partition_function[field_size * (i - j - 1) + j], partition_function[field_size * (i - j) + j - 1]);
-				if (partition_function[field_size * (i - j - 1) + j] > partition_function[field_size * (i - j) + j - 1])
+				FPT[field_size * (i - j) + j] = field[field_size * (i - j) + j] + min(FPT[field_size * (i - j - 1) + j], FPT[field_size * (i - j) + j - 1]);
+				if (FPT[field_size * (i - j - 1) + j] > FPT[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j) + j - 1];
 				}
-				else if (partition_function[field_size * (i - j - 1) + j] < partition_function[field_size * (i - j) + j - 1])
+				else if (FPT[field_size * (i - j - 1) + j] < FPT[field_size * (i - j) + j - 1])
 				{
 					num_of_least_energy_pathes[field_size * (i - j) + j] = num_of_least_energy_pathes[field_size * (i - j - 1) + j];
 				}
@@ -211,9 +211,9 @@ double *Field::SofE_all_path(int Emax, int pos, int depth)
 	return SofE;
 }
 
-double *Field::get_partition_function()
+double *Field::get_FPT()
 {
-	return partition_function;
+	return FPT;
 }
 
 double *Field::get_num_of_least_energy_pathes()
@@ -226,15 +226,15 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	if (!Isfixed)
 	{
 		double sum = 0;
-		double min_partition_func=calc_Emin(parcolation);
+		double min_FPT=calc_Emin(parcolation);
 
 		for (int j = 0; j < field_size; j++) // 最大のもののみ計算
 		{
-			if (min_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			if (min_FPT == FPT[field_size * (field_size - j - 1) + j])
 			{
 				if (calc_mode == 1)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
 				}
 				else if (calc_mode == 2)
 				{
@@ -247,31 +247,31 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 	else
 	{
 		double sum = 0;
-		double min_partition_func;
+		double min_FPT;
 		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
-			min_partition_func = 0;
+			min_FPT = 0;
 		}
 		else
 		{
-			min_partition_func = partition_function[field_size * (field_size / 2 - 1) + field_size / 2];
+			min_FPT = FPT[field_size * (field_size / 2 - 1) + field_size / 2];
 		}
 
 		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
 		{
-			if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
+			if (min_FPT > FPT[field_size * (field_size - j - 1) + j])
 			{
-				min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+				min_FPT = FPT[field_size * (field_size - j - 1) + j];
 			}
 		}
 
 		for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 最大のもののみ計算
 		{
-			if (min_partition_func == partition_function[field_size * (field_size - j - 1) + j])
+			if (min_FPT == FPT[field_size * (field_size - j - 1) + j])
 			{
 				if (calc_mode == 1)
 				{
-					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * partition_function[field_size * (field_size - j - 1) + j];
+					sum += num_of_least_energy_pathes[field_size * (field_size - j - 1) + j] * FPT[field_size * (field_size - j - 1) + j];
 				}
 				else if (calc_mode == 2)
 				{
@@ -284,23 +284,23 @@ double Field::calc_pysical_quantity(int calc_mode, bool parcolation, bool Isfixe
 }
 
 double Field::calc_Emin(bool parcolation){
-	double min_partition_func;
+	double min_FPT;
 		if (parcolation == true) // 分配関数の最大値の初期化(parcolationの時はノイズの最小値)
 		{
-			min_partition_func = 0;
+			min_FPT = 0;
 		}
 		else
 		{
-			min_partition_func = partition_function[field_size * (field_size - 1)];
+			min_FPT = FPT[field_size * (field_size - 1)];
 			for (int j = 0; j < field_size; j++) // 長さfield_sizeの各分配関数の最大値を計算
 			{
-				if (min_partition_func > partition_function[field_size * (field_size - j - 1) + j])
+				if (min_FPT > FPT[field_size * (field_size - j - 1) + j])
 				{
-					min_partition_func = partition_function[field_size * (field_size - j - 1) + j];
+					min_FPT = FPT[field_size * (field_size - j - 1) + j];
 				}
 			}
 		}
-		return min_partition_func;
+		return min_FPT;
 }
 
 double Field::get_FPT(bool parcolation, bool Isfixed)

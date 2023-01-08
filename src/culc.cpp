@@ -59,11 +59,11 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 		Field *field;
 		field = new Field(len);
 		field->set_potential(p, noise_mode);
-		field->set_partition_function();
+		field->set_FPT();
 
 		if (calc_mode == 1)
 		{
-			show_field(field->get_partition_function(), len, lenmax, show_in_terminal);
+			show_field(field->get_FPT(), len, lenmax, show_in_terminal);
 			data += field->get_FPT(parcolation, Isfixed);
 		}
 		else if (calc_mode == 2)
@@ -120,7 +120,7 @@ void SofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_
 		Field *field;
 		field = new Field(len);
 		field->set_potential(p, noise_mode);
-		field->set_partition_function();
+		field->set_FPT();
 
 		double _Emin=field->calc_Emin(parcolation);
 		int Emin=int(_Emin);

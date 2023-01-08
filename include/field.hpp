@@ -11,9 +11,9 @@ public:
 
 	void set_potential(double p,int mode);
 	double *get_potential();
-	void set_partition_function();
+	void set_FPT();
 	double *SofE_all_path(int Emax,int pos,int depth);
-	double *get_partition_function();
+	double *get_FPT();
 	double *get_num_of_least_energy_pathes();
 	double calc_pysical_quantity(int calc_mode,bool parcolation,bool Isfixed);
 	double calc_Emin(bool parcolation);
@@ -23,7 +23,7 @@ public:
 private:
 	int field_size;
 	double *field;
-	double *partition_function;
+	double *FPT;
 	double *num_of_least_energy_pathes;
 };
 
