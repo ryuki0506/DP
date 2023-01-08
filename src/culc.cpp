@@ -77,7 +77,7 @@ double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_m
 	return data / shots;
 }
 
-void SofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
+void WofE(double *WofE_all_path, int Emax, int len, double p, int shots, int noise_mode, bool Isfixed)
 {
 	for (size_t E = 0; E < Emax; E++)
 	{
