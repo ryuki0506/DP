@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cmath>
 #include "culc.hpp"
-#include "field.hpp"
-#include "output.hpp"
 
 using namespace std;
 
