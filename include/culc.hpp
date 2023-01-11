@@ -9,12 +9,5 @@ double limited_average(double *data, int data_len);
 
 double average(double *data, int data_len);
 
-double Sofp(int len, int lenmax, double p, int shots, int noise_mode, int calc_mode, bool show_in_terminal, bool Isfixed, bool parcolation,double temp);
-
-void WofE(double *SofE_all_path,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed,double temp);
-
-void WofE_min(double *SofE_min,int Emax,int len, double p, int shots, int noise_mode, bool Isfixed,bool parcolation);
-
-
 
 #endif
