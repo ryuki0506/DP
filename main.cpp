@@ -7,13 +7,13 @@
 #include <cmath>
 using namespace std;
 
-const int len = 500;	 // ポリマーの長さの最大値
+const int len = 100;		 // ポリマーの長さの最大値
 const double pmax = 1;	 // サイトがopenな確率の最大
 const double pmin = 0.6; // サイトがopenな確率の最小
 const int steps = 100;	 //>1 pの刻み数
 const int shots = 100;	 // 試行回数
 
-const int Emax = 21;
+const int Emax = 50;
 const double temp = 0;
 
 const int noise_mode = 3; // 計算するノイズの種類
@@ -25,7 +25,7 @@ noize_mode==4 :log-gamma分布
 */
 const int calc_mode = 1;
 /*
-calc_mode==1 :growth rate
+calc_mode==1 :FPT
 calc_mode==2 :entropy
 */
 const int output_mode = 1;
@@ -57,13 +57,15 @@ int main()
 		double FPT = 0;
 		double W = 0;
 		double WofE[Emax];
-		for (size_t E = 0; E < Emax; E++)
+		for (int E = 0; E < Emax; E++)
 		{
 			WofE[E] = 0;
 		}
 		int nonzero_count = 0;
 
-		for (size_t shot = 0; shot < shots; shot++)
+		int finit_num = 0;
+
+		for (int shot = 0; shot < shots; shot++)
 		{
 			Field *field;
 			field = new Field(len, Emax);
@@ -72,15 +74,18 @@ int main()
 
 			if (temp == 0)
 			{
-				double FPT_shot = field->calc_FPT(parcolation, Isfixed);
-				double W_shot = field->calc_W_Emin(parcolation, Isfixed);
+				//double FPT_shot = field->calc_FPT(parcolation, Isfixed);
+				double FPT_shot = field->calc_Emin(parcolation, Isfixed);
+				
+				double W_shot = field->calc_entropy(parcolation, Isfixed);
 
 				double _Emin = field->calc_Emin(parcolation, Isfixed);
-				int Emin = int(_Emin);
+				//int Emin = int(_Emin);
+				int Emin=0;
 
 				FPT += FPT_shot;
-				W += W_shot;
-				if (Emin < Emax)
+
+				if (!parcolation)
 				{
 					// WofE[Emin] += W_shot;
 					WofE[Emin] += 1;
@@ -111,16 +116,12 @@ int main()
 				WofE[E] /= shots;
 			}
 		}
-		else
+		else if(finit_num>0)
 		{
-			if (nonzero_count > 0)
+			W /= finit_num;
+			for (int E = 0; E < Emax; E++)
 			{
-				FPT /= nonzero_count;
-				W /= nonzero_count;
-				for (size_t E = 0; E < Emax; E++)
-				{
-					WofE[E] /= nonzero_count;
-				}
+				WofE[E] /= finit_num;
 			}
 		}
 
@@ -128,16 +129,16 @@ int main()
 		{
 			if (calc_mode == 1)
 			{
-				ofs << FPT / len << endl;
+				ofs << -FPT / len << endl;
 			}
 			else if (calc_mode == 2)
 			{
-				ofs << log(W) / len << endl;
+				ofs << W / len << endl;
 			}
 		}
 		else if (output_mode == 2)
 		{
-			for (size_t E = 0; E < Emax; E++)
+			for (int E = 0; E < Emax; E++)
 			{
 				if (E < Emax - 1)
 				{

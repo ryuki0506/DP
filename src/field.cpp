@@ -327,7 +327,7 @@ double Field::calc_Emin(bool parcolation, bool Isfixed)
 		}
 		else
 		{
-			min_FPT = FPT[field_size * (field_size / 2) + field_size / 2 - 1];
+			min_FPT = FPT[field_size * (field_size / 2) + field_size / 2-1];
 			for (int j = field_size / 2 - 1; j <= field_size / 2; j++) // 長さfield_sizeの各分配関数の最大値を計算
 			{
 				if (min_FPT > FPT[field_size * (field_size - j - 1) + j])
