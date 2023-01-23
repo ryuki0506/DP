@@ -16,14 +16,14 @@ const int shots = 100;	 // 試行回数
 const int Emax = 50;
 const double temp = 0;
 
-const int noise_mode = 3; // 計算するノイズの種類
+const int noise_mode = 1; // 計算するノイズの種類
 /*
 noize_mode==1 :Bernulli分布
 noize_mode==2 :geometric分布
 noize_mode==3 :exponential分布
 noize_mode==4 :log-gamma分布
 */
-const int calc_mode = 1;
+const int calc_mode = 2;
 /*
 calc_mode==1 :FPT
 calc_mode==2 :entropy
@@ -33,7 +33,7 @@ const int output_mode = 1;
 output_mode==1 :A vs p
 output_mode==2 :S vs E
 */
-const bool Isfixed = true;
+const bool Isfixed = false;
 const bool parcolation = false;		 // parcolationとして計算するか？
 const bool show_in_terminal = false; // ターミナルに表示するか？
 
@@ -61,7 +61,6 @@ int main()
 		{
 			WofE[E] = 0;
 		}
-		int nonzero_count = 0;
 
 		int finit_num = 0;
 
@@ -87,18 +86,28 @@ int main()
 
 				if (!parcolation)
 				{
-					// WofE[Emin] += W_shot;
-					WofE[Emin] += 1;
+					W += W_shot;
+					if (Emin < Emax)
+					{
+						WofE[Emin] += W_shot;
+						// WofE[Emin] += 1;
+					}
 				}
-				if (W_shot > 0)
+				else if (W_shot != log(0))
 				{
-					nonzero_count++;
+					W += W_shot;
+					if (Emin < Emax)
+					{
+						WofE[Emin] += W_shot;
+						// WofE[Emin] += 1;
+					}
+					finit_num++;
 				}
 			}
 			else if (temp > 0)
 			{
 				FPT += field->get_Z();
-				for (size_t E = 0; E < Emax; E++)
+				for (int E = 0; E < Emax; E++)
 				{
 					WofE[E] += field->get_WofE()[E];
 				}
@@ -107,11 +116,12 @@ int main()
 			delete field;
 		}
 
+		FPT /= shots;
+
 		if (!parcolation)
 		{
-			FPT /= shots;
 			W /= shots;
-			for (size_t E = 0; E < Emax; E++)
+			for (int E = 0; E < Emax; E++)
 			{
 				WofE[E] /= shots;
 			}
